@@ -157,8 +157,34 @@ function filtrarGastos(filtro) {
     });
 }
 
-function agruparGastos(periodo, etiquetas, fechaDesde, fechaHasta) {
+function agruparGastos(periodo = "mes", etiquetas = [], fechaDesde, fechaHasta) {
+    const resultado = {};
 
+    const fechaMin = fechaDesde ? new Date(fechaDesde) : null;
+    const fechaMax = fechaHasta ? new Date(fechaHasta) : new Date;
+
+    gastos.forEach(gasto => {
+        const fechaGasto = new Date(gasto.fecha);
+
+        if (fechaMin && fechaGasto < fechaMin) return;
+        if (fechaMax && fechaGasto > fechaMax) return;
+
+        if (etiquetas.length > 0) {
+            const etiquetasGasto = gasto.etiquetas.map(etiqueta => etiqueta.toLowerCase());
+            const etiquetasFiltro = etiquetas.map(etiqueta => etiqueta.toLowerCase());
+
+            const etiquetaCoincide = etiquetasFiltro.some(etiqueta => etiquetasGasto.includes(etiqueta));
+            if (!etiquetaCoincide) return;
+        }
+        const clavePeriodo = gasto.obtenerPeriodoAgrupacion(periodo);
+
+        if (!resultado[clavePeriodo]) {
+            resultado[clavePeriodo] = gasto.valor;
+        } else {
+            resultado[clavePeriodo] += gasto.valor;
+        }
+    });
+    return resultado;
 }
 
 export {
