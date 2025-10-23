@@ -29,11 +29,11 @@ function CrearGasto(descripcion, valor, fecha, ...etiquetas) {
     } else {
         let fechaParse = Date.parse(fecha);
         this.fecha = isNaN(fechaParse) ? Date.now() : fechaParse;
-        // si no se introduce una fecha válida, se establece la fecha actual
+        //si no se introduce una fecha válida, se establece la fecha actual
     }
 
     this.etiquetas = etiquetas.length > 0 ? etiquetas : [];
-    // si no se introducen etiquetas, se establece un array vacío
+    //si no se introducen etiquetas, se establece un array vacío
 
     this.mostrarGasto = function() {
         return `Gasto correspondiente a ${this.descripcion} con valor ${this.valor} €`;
@@ -71,6 +71,25 @@ function CrearGasto(descripcion, valor, fecha, ...etiquetas) {
     this.borrarEtiquetas = function(...etiquetas) {
         this.etiquetas = this.etiquetas.filter(etiqueta => !etiquetas.includes(etiqueta));
     };
+
+    this.obtenerPeriodoAgrupacion = function(periodo) {
+        const fecha = new Date(this.fecha);
+
+        const anio = fecha.getFullYear();
+        const mes = fecha.getMonth() + 1;
+        const dia = fecha.getDate();
+
+        //los convertimos a cadenas de texto
+        //padStart para que tengan dos digitos (formato esperado)
+        const mesString = String(mes).padStart(2, "0");
+        const diaString = String(dia).padStart(2, "0");
+
+        switch(periodo) {
+            case "dia": return `${anio}-${mesString}-${diaString}`;
+            case "mes": return `${anio}-${mesString}`;
+            case "anyo": return `${anio}`;
+        }
+    };
 }
 
 function listarGastos() {
@@ -95,6 +114,14 @@ function calcularBalance() {
     return presupuesto - calcularTotalGastos();
 }
 
+function filtrarGastos(filtro) {
+
+}
+
+function agruparGastos(periodo, etiquetas, fechaDesde, fechaHasta) {
+
+}
+
 export {
     mostrarPresupuesto,
     actualizarPresupuesto,
@@ -104,4 +131,6 @@ export {
     borrarGasto,
     calcularTotalGastos,
     calcularBalance,
+    filtrarGastos,
+    agruparGastos
 }
