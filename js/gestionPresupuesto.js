@@ -115,7 +115,46 @@ function calcularBalance() {
 }
 
 function filtrarGastos(filtro) {
+    if (!filtro) {
+        return gastos;
+    }
 
+    return gastos.filter(gasto => {
+        if (filtro.fechaDesde) {
+            const fechaGasto = new Date(gasto.fecha);
+            const fechaMinima = new Date(filtro.fechaDesde);
+            if (fechaGasto < fechaMinima) return false;
+        }
+
+        if (filtro.fechaHasta) {
+            const fechaGasto = new Date(gasto.fecha);
+            const fechaMaxima = new Date(filtro.fechaHasta);
+            if (fechaGasto > fechaMaxima) return false;
+        }
+
+        if (filtro.valorMinimo) {
+            if (gasto.valor < filtro.valorMinimo) return false;
+        }
+
+        if (filtro.valorMaximo) {
+            if (gasto.valor > filtro.valorMaximo) return false;
+        }
+
+        if (filtro.descripcionContiene) {
+            const texto = filtro.descripcionContiene.toLowerCase();
+            const descripcion = gasto.descripcion.toLowerCase();
+            if (!descripcion.includes(texto)) return false;
+        }
+
+        if (filtro.etiquetasTiene) {
+            const etiquetasGasto = gasto.etiquetas.map(etiqueta => etiqueta.toLowerCase());
+            const etiquetasFiltro = filtro.etiquetasTiene.map(etiqueta => etiqueta.toLowerCase());
+            const etiquetaCoincide = etiquetasFiltro.some(etiqueta => etiquetasGasto.includes(etiqueta));
+            if (!etiquetaCoincide) return false;
+        }
+
+        return true;
+    });
 }
 
 function agruparGastos(periodo, etiquetas, fechaDesde, fechaHasta) {
