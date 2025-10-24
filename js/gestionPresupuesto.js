@@ -27,10 +27,11 @@ function CrearGasto(descripcion, valor, fecha, ...etiquetas) {
     if (!fecha) {
         this.fecha = Date.now();
     } else {
-        let fechaParse = Date.parse(fecha);
+        const fechaParse = Date.parse(fecha);
         this.fecha = isNaN(fechaParse) ? Date.now() : fechaParse;
         //si no se introduce una fecha válida, se establece la fecha actual
     }
+    //al final, fecha se almacena en formato timestamp
 
     this.etiquetas = etiquetas.length > 0 ? etiquetas : [];
     //si no se introducen etiquetas, se establece un array vacío
@@ -52,13 +53,15 @@ function CrearGasto(descripcion, valor, fecha, ...etiquetas) {
     this.mostrarGastoCompleto = function() {
         let textoSalida = `Gasto correspondiente a ${this.descripcion} con valor ${this.valor} €.`;
         textoSalida += `\nFecha: ${new Date(this.fecha).toLocaleString()}`;
+        //se convierte en un objeto Date y luego en formato localizado
         textoSalida += `\nEtiquetas:\n`;
         this.etiquetas.forEach(etiqueta => textoSalida += `- ${etiqueta}\n`);
         return textoSalida;
     };
 
+    //si nuevaFecha no es válida, no se modifica.
     this.actualizarFecha = function(nuevaFecha) {
-        let fechaParse = Date.parse(nuevaFecha);
+        const fechaParse = Date.parse(nuevaFecha);
         if (!isNaN(fechaParse)) this.fecha = fechaParse;
     };
 
@@ -73,14 +76,17 @@ function CrearGasto(descripcion, valor, fecha, ...etiquetas) {
     };
 
     this.obtenerPeriodoAgrupacion = function(periodo) {
+        //se crea un objeto date a partir del timestamp
         const fecha = new Date(this.fecha);
 
         const anio = fecha.getFullYear();
+        //se suma 1 porq el método getMonth devuelve los meses empezando por 0 (del 0 al 11)
+        //p.ej. enero sería 0. Pero si le sumo 1 los meses irían del 1 al 12.
         const mes = fecha.getMonth() + 1;
         const dia = fecha.getDate();
 
-        //los convertimos a cadenas de texto
-        //padStart para que tengan dos digitos (formato esperado)
+        //convertimos día y mes a cadenas de texto
+        //padStart para q tengan dos digitos (formato q se pide)
         const mesString = String(mes).padStart(2, "0");
         const diaString = String(dia).padStart(2, "0");
 
@@ -88,6 +94,7 @@ function CrearGasto(descripcion, valor, fecha, ...etiquetas) {
             case "dia": return `${anio}-${mesString}-${diaString}`;
             case "mes": return `${anio}-${mesString}`;
             case "anyo": return `${anio}`;
+            default: undefined;
         }
     };
 }
@@ -120,6 +127,7 @@ function filtrarGastos(filtro) {
     }
 
     return gastos.filter(gasto => {
+        //convierto a Date para comparar instantes temporales
         if (filtro.fechaDesde) {
             const fechaGasto = new Date(gasto.fecha);
             const fechaMinima = new Date(filtro.fechaDesde);
@@ -144,11 +152,14 @@ function filtrarGastos(filtro) {
             const texto = filtro.descripcionContiene.toLowerCase();
             const descripcion = gasto.descripcion.toLowerCase();
             if (!descripcion.includes(texto)) return false;
+            //includes comprueba si la descripcion de gasto contiene la subcadena
         }
 
         if (filtro.etiquetasTiene) {
+            //con map se pasa cada etiqueta a minúscula
             const etiquetasGasto = gasto.etiquetas.map(etiqueta => etiqueta.toLowerCase());
             const etiquetasFiltro = filtro.etiquetasTiene.map(etiqueta => etiqueta.toLowerCase());
+            //se utiliza some para comprobar q al menos UNA etiqueta coincide
             const etiquetaCoincide = etiquetasFiltro.some(etiqueta => etiquetasGasto.includes(etiqueta));
             if (!etiquetaCoincide) return false;
         }
@@ -157,11 +168,12 @@ function filtrarGastos(filtro) {
     });
 }
 
+//valor por defecto del periodo mes, y etiquetas un array vacío.
 function agruparGastos(periodo = "mes", etiquetas = [], fechaDesde, fechaHasta) {
     const resultado = {};
 
     const fechaMin = fechaDesde ? new Date(fechaDesde) : null;
-    const fechaMax = fechaHasta ? new Date(fechaHasta) : new Date;
+    const fechaMax = fechaHasta ? new Date(fechaHasta) : new Date();
 
     gastos.forEach(gasto => {
         const fechaGasto = new Date(gasto.fecha);
