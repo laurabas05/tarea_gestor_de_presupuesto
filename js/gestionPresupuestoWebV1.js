@@ -11,14 +11,17 @@ import {
     agruparGastos
 } from './gestionPresupuesto.js';
 
-
+// declaro los contenedores q vamos a modificar
 const contenedorFormulario = document.getElementById("formularioGastos");
 const contenedorListado = document.getElementById("listadoGastos");
-const pTotalGastos = document.getElementById("totalGastos");
+const pTotalGastos = document.getElementById("total");
 
 function crearFormularioGasto() {
     const form = document.createElement("form");
 
+    // ahora, para cada parametro, le declaro su contenedor,
+    // y dentro su label y su input. Esto lo hago por adaptarme
+    // al css que ya venía en el proyecto.
     const divDescripcion = document.createElement("div");
     divDescripcion.className = "form-control";
     const labelDescripcion = document.createElement("label");
@@ -36,6 +39,7 @@ function crearFormularioGasto() {
     const inputValor = document.createElement("input");
     inputValor.type = "number";
     inputValor.id = "valor";
+    inputValor.step = "0.01" // para q acepte decimales
     inputValor.required = true;
     divValor.append(labelValor, inputValor);
 
@@ -62,6 +66,7 @@ function crearFormularioGasto() {
     botonAniadirGasto.type = "submit";
     botonAniadirGasto.textContent = "Añadir gasto";
 
+    // añadimos los contenedores que hemos creado al formulario
     form.append(
         divDescripcion,
         divValor,
@@ -73,6 +78,7 @@ function crearFormularioGasto() {
     // se incorpora el formulario al html
     contenedorFormulario.appendChild(form);
 
+    // funcion para evitar q se recargue la pagina al enviar el formulario
     form.addEventListener("submit", (event) => {
         event.preventDefault();
 
@@ -80,22 +86,26 @@ function crearFormularioGasto() {
         // ya q valor devuelve una cadena, lo convertimos a un float
         const valor = parseFloat(inputValor.value);
         const fecha = inputFecha.value;
-        // dividimos la cadena de etiquetas en un array usando la coma como separador
+        // dividimos la cadena de etiquetas en un array usando por ejemplo la coma como separador
         const etiquetas = inputEtiquetas.value.split(",");
         
+        // no queremos q se recargue la pagina porq queremos mostrar
+        // dinámicamente los objetos gasto que vayamos creando
         const nuevoGasto = new CrearGasto(descripcion, valor, fecha, ...etiquetas);
         anyadirGasto(nuevoGasto);
 
         actualizarInterfaz();
-        // se limpia el formulario
+
+        // se limpia el formulario después de enviarlo
         form.reset();
     });
 }
 
 function mostrarListadoGastos() {
     const listaGastos = listarGastos();
-    // 
-    contenedorListado.querySelectorAll(".gasto").forEach(g => g.remove());
+    // esto lo hago para q cuando se actualicen los gastos se borre el listado anterior
+    // (si no los gastos se duplicarían visualmente)
+    contenedorListado.innerHTML = "";
 
     if (listaGastos.length === 0) {
         const p = document.createElement("p");
@@ -104,6 +114,8 @@ function mostrarListadoGastos() {
         return;
     }
 
+    // funcion que simplemente muestra cada gasto q hemos creado
+    // y su botón de borrado
     listaGastos.forEach(gasto => {
         const div = document.createElement("div");
         div.className = "gasto";
@@ -112,7 +124,7 @@ function mostrarListadoGastos() {
             <div class="gasto-descripcion">${gasto.descripcion}</div>
             <div class="gasto-fecha">${new Date(gasto.fecha).toLocaleDateString()}</div>
             <div class="gasto-valor">${gasto.valor}</div>
-            <div class="gasto-etiquetas">${gasto.etiquetas.join(", ") || "No contiene etiquetas"}</div>
+            <div class="gasto-etiquetas">${gasto.etiquetas.map(etiqueta => `<span class="gasto-etiquetas-etiqueta">${etiqueta}</span>`)}</div>
         `;
 
         const botonBorrar = document.createElement("button");
@@ -134,6 +146,7 @@ function mostrarTotalGastos() {
     pTotalGastos.textContent = `${totalGastos} €`;
 }
 
+// funcion para actualizar visualmente lo q vamos añadiendo y borrando
 function actualizarInterfaz() {
     mostrarListadoGastos();
     mostrarTotalGastos();
