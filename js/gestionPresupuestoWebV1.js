@@ -49,4 +49,36 @@ function crearFormularioGasto() {
         inputEtiquetas,
         botonAniadirGasto
     );
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const descripcion = inputDescripcion.value;
+        // ya q valor devuelve una cadena, lo convertimos a un float
+        const valor = parseFloat(inputValor.value);
+        const fecha = inputFecha.value;
+        // dividimos la cadena de etiquetas en un array usando la coma como separador
+        const etiquetas = inputEtiquetas.value
+            .split(",");
+        
+        anyadirGasto(descripcion, valor, fecha, ...etiquetas);
+
+        // se refresca la interfaz
+        mostrarListadoGastos();
+        mostrarTotalGastos();
+
+        // se limpia el formulario
+        form.reset();
+    });
+
+    // se incorpora el formulario al html
+    contenedor.appendChild(form);
+}
+
+function mostrarListadoGastos() {
+
+}
+
+function mostrarTotalGastos() {
+
 }
