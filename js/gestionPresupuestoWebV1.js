@@ -9,10 +9,14 @@ import {
     calcularBalance,
     filtrarGastos,
     agruparGastos
-} from 'gestionPresupuesto.js';
+} from './gestionPresupuesto.js';
+
+crearFormularioGasto();
+actualizarInterfaz();
 
 function crearFormularioGasto() {
     const contenedor = document.getElementById("formularioGastos");
+    contenedor.innerHTML = "";
 
     const form = document.createElement("form");
 
@@ -61,11 +65,10 @@ function crearFormularioGasto() {
         const etiquetas = inputEtiquetas.value
             .split(",");
         
-        anyadirGasto(descripcion, valor, fecha, ...etiquetas);
+        const nuevoGasto = new CrearGasto(descripcion, valor, fecha, ...etiquetas);
+        anyadirGasto(nuevoGasto);
 
-        // se refresca la interfaz
-        mostrarListadoGastos();
-        mostrarTotalGastos();
+        actualizarInterfaz();
 
         // se limpia el formulario
         form.reset();
@@ -76,9 +79,45 @@ function crearFormularioGasto() {
 }
 
 function mostrarListadoGastos() {
+    const contenedor = document.getElementById("listadoGastos");
+    // con esto limpio el listado anterior porq si no salen los gastos duplicados 
+    contenedor.innerHTML = "";
 
+    const listaGastos = listarGastos();
+
+    if (listaGastos.length === 0) {
+        contenedor.textContent = "No hay gastos registrados.";
+        return;
+    }
+
+    listaGastos.forEach(gasto => {
+        const div = document.createElement("div");
+        div.innerHTML = `
+            <p><strong>${gasto.descripcion}</strong> - ${gasto.valor} €</p>
+            <p><strong>Fecha: </strong>${new Date(gasto.fecha).toLocaleDateString()}</p>
+            <p><strong>Etiquetas: </strong>${gasto.etiquetas.join(", ") || "No contiene etiquetas"}</p>
+        `;
+
+        const botonBorrar = document.createElement("button");
+        botonBorrar.textContent = "Borrar";
+        botonBorrar.addEventListener("click", () => {
+            borrarGasto(gasto.id);
+            actualizarInterfaz();
+        });
+
+        div.appendChild(botonBorrar);
+        contenedor.appendChild(div);
+    });
 }
 
 function mostrarTotalGastos() {
+    const contenedor = document.getElementById("totalGastos");
 
+    const totalGastos = calcularTotalGastos();
+    contenedor.textContent = `${totalGastos} €`;
+}
+
+function actualizarInterfaz() {
+    mostrarListadoGastos();
+    mostrarTotalGastos();
 }
