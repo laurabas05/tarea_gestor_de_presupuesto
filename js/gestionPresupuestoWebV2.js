@@ -130,5 +130,48 @@ function actualizarInterfaz() {
     mostrarTotalGastos();
 }
 
+class MiGasto extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: "open" });
+
+        // se clona el contenido de la template 'plantilla-gasto' en el html
+        const plantilla = document.getElementById("plantilla-gasto");
+        const contenido = plantilla.content.cloneNode(true);
+        // se añade al shadow root del componente
+        this.shadowRoot.appendChild(contenido);
+    }
+
+    // cuando se defina un gasto se guarda en el setter datos
+    set datos(gasto) {
+        this._gasto = gasto;
+        this.render();
+    }
+
+    render() {
+        // se busca dentro del SDom los elementos para ponerles como texto su propiedad correspondiente
+        this.shadowRoot.querySelector(".gasto-descripcion").textContent = this._gasto.descripcion;
+        this.shadowRoot.querySelector(".gasto-valor").textContent = this._gasto.valor;
+        this.shadowRoot.querySelector(".gasto-fecha").textContent = this._gasto.fecha;
+        // se limpian las etiquetas (pa que no se repitan) 
+        const etiquetasDiv = this.shadowRoot.querySelector(".gasto-etiquetas");
+        etiquetasDiv.innerHTML = "";
+        // por tema de css, creo un span para cada una con su clase correspondiente
+        this._gasto.etiquetas.forEach((etiqueta) => {
+            const span = document.createElement("span");
+            span.classList.add("gasto-etiquetas-etiqueta");
+            span.textContent = etiqueta;
+            etiquetasDiv.appendChild(span);
+        });
+
+    // obtenemos los botones d la template
+    const botonBorrar = this.shadowRoot.querySelector("#borrar");
+    const botonEditar = this.shadowRoot.querySelector("#editar");
+    const formEdicion = this.shadowRoot.querySelector("#form-edicion");
+
+
+    }
+}
+
 crearFormularioGasto();
 actualizarInterfaz();
