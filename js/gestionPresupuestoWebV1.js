@@ -107,6 +107,7 @@ function mostrarListadoGastos() {
     // (si no los gastos se duplicarían visualmente)
     contenedorListado.innerHTML = "";
 
+    // si no hay gastos q aparezca q no los hay
     if (listaGastos.length === 0) {
         const p = document.createElement("p");
         p.textContent = "No hay gastos registrados.";
@@ -127,6 +128,7 @@ function mostrarListadoGastos() {
             <div class="gasto-etiquetas">${gasto.etiquetas.map(etiqueta => `<span class="gasto-etiquetas-etiqueta">${etiqueta}</span>`)}</div>
         `;
 
+        // creamos un boton de borrado q borra un gasto por su id
         const botonBorrar = document.createElement("button");
         botonBorrar.textContent = "Borrar";
         botonBorrar.addEventListener("click", () => {
@@ -141,6 +143,7 @@ function mostrarListadoGastos() {
     });
 }
 
+// funcion q calcula el total de gastos
 function mostrarTotalGastos() {
     const totalGastos = calcularTotalGastos();
     pTotalGastos.textContent = `${totalGastos} €`;
