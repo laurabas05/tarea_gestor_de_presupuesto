@@ -138,12 +138,11 @@ class MiGasto extends HTMLElement {
             }
         `;
 
-
         // se añade al shadow root del componente
-        this.shadowRoot.appendChild(estilo, contenido);
+        this.shadowRoot.append(estilo, contenido);
     }
 
-    // cuando se defina un gasto se guarda en el setter datos
+    // cuando se asigna un gasto al componente, se guarda y se llama a render
     set datos(gasto) {
         this._gasto = gasto;
         this.render();
@@ -215,16 +214,19 @@ class MiGasto extends HTMLElement {
 
 customElements.define("mi-gasto", MiGasto);
 
+// funcion q limpia el contenedor de los gastos
 function actualizarListado() {
     contenedorListado.innerHTML = "";
     const gastos = listarGastos();
 
+    // para cada gasto se crea un componente 'mi-gasto'
     gastos.forEach((gasto) => {
         const elemento = document.createElement("mi-gasto");
         elemento.datos = gasto;
         contenedorListado.appendChild(elemento);
     });
 
+    // calculo del total de los gastos
     const total = calcularTotalGastos();
     pTotalGastos.textContent = total + " €";
 }
