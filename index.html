@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de gastos</title>
     <link rel="stylesheet" href="css/estilos.css">
-    <script type="module" src="js/gestionPresupuestoWebV1.js" defer></script>
+    <script type="module" src="js/gestionPresupuestoWebV2.js" defer></script>
 </head>
 <body>
 
@@ -26,5 +26,26 @@
         </div>
     </div>
 
+
+    <template id="plantilla-gasto">
+        <div class="gasto">
+            <div class="gasto-descripcion" id="descripcion"></div>
+            <div class="gasto-valor" id="valor"></div>
+            <div class="gasto-fecha" id="fecha"></div>
+            <div class="gasto-etiquetas" id="etiquetas"></div>
+
+            <button id="borrar">Borrar</button>
+            <button id="editar">Editar</button>
+
+            <form id="form-edicion" style="display:none">
+                <input type="text" id="nuevaDescripcion" placeholder="Descripción">
+                <input type="number" id="nuevoValor" step="0.01" placeholder="Valor (€)">
+                <input type="date" id="nuevaFecha">
+                <button type="submit">Guardar</button>
+                <button type="button" id="cancelar">Cancelar</button>
+            </form>
+        </div>
+    </template>
+    
 </body>
 </html>
