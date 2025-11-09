@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="css/estilos.css">
     <script type="module" src="js/gestionPresupuestoWebV2.js" defer></script>
 </head>
+
 <body>
 
     <div id="aplicacion">
@@ -38,14 +40,24 @@
             <button id="editar">Editar</button>
 
             <form id="form-edicion" style="display:none">
-                <input type="text" id="nuevaDescripcion" placeholder="Descripción">
-                <input type="number" id="nuevoValor" step="0.01" placeholder="Valor (€)">
-                <input type="date" id="nuevaFecha">
-                <button type="submit">Guardar</button>
+                <div class="form-control">
+                    <label for="nuevaDescripcion">Descripción:</label>
+                    <input type="text" id="nuevaDescripcion">
+                </div>
+                <div class="form-control">
+                    <label for="nuevoValor">Valor:</label>
+                    <input type="number" id="nuevoValor" step="0.01">
+                </div>
+                <div class="form-control">
+                    <label for="nuevaFecha">Fecha:</label>
+                    <input type="date" id="nuevaFecha">
+                </div>
+                <button type="submit" class="gasto-editar-formulario">Guardar</button>
                 <button type="button" id="cancelar">Cancelar</button>
             </form>
         </div>
     </template>
-    
+
 </body>
+
 </html>
