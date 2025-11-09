@@ -25,7 +25,7 @@ function crearFormularioGasto() {
     const inputDescripcion = document.createElement("input");
     inputDescripcion.type = "text";
     inputDescripcion.id = "descripcion";
-    inputDescripcion.required = "true";
+    inputDescripcion.required = true;
     divDescripcion.append(labelDescripcion, inputDescripcion)
 
     const divValor = document.createElement("div");
@@ -84,50 +84,17 @@ function crearFormularioGasto() {
         const fecha = inputFecha.value;
         // dividimos la cadena de etiquetas en un array usando por ejemplo la coma como separador
         const etiquetas = inputEtiquetas.value.split(",");
-        
+
         // no queremos q se recargue la pagina porq queremos mostrar
         // dinámicamente los objetos gasto que vayamos creando
         const nuevoGasto = new CrearGasto(descripcion, valor, fecha, ...etiquetas);
         anyadirGasto(nuevoGasto);
 
-        actualizarInterfaz();
+        actualizarListado();
 
         // se limpia el formulario después de enviarlo
         form.reset();
     });
-}
-
-function mostrarListadoGastos() {
-    const listaGastos = listarGastos();
-    // esto lo hago para q cuando se actualicen los gastos se borre el listado anterior
-    // (si no los gastos se duplicarían visualmente)
-    contenedorListado.innerHTML = "";
-
-    if (listaGastos.length === 0) {
-        const p = document.createElement("p");
-        p.textContent = "No hay gastos registrados.";
-        contenedorListado.appendChild(p);
-        return;
-    }
-
-    // funcion que simplemente muestra cada gasto q hemos creado
-    // y su botón de borrado
-    listaGastos.forEach(gasto => {
-        const elementoGasto = document.createElement("mi-gasto");
-        elementoGasto.gasto = gasto;
-        contenedorListado.appendChild(elementoGasto);
-    });
-}
-
-function mostrarTotalGastos() {
-    const totalGastos = calcularTotalGastos();
-    pTotalGastos.textContent = `${totalGastos} €`;
-}
-
-// funcion para actualizar visualmente lo q vamos añadiendo y borrando
-function actualizarInterfaz() {
-    mostrarListadoGastos();
-    mostrarTotalGastos();
 }
 
 class MiGasto extends HTMLElement {
@@ -138,8 +105,42 @@ class MiGasto extends HTMLElement {
         // se clona el contenido de la template 'plantilla-gasto' en el html
         const plantilla = document.getElementById("plantilla-gasto");
         const contenido = plantilla.content.cloneNode(true);
+
+        // ya que el css q tenemos no afecta al componente, 
+        // copio los estilos q se necesiten para añadirlos al shadow
+        const estilo = document.createElement("style");
+        estilo.textContent = `
+            .gasto {
+                margin: 1em 0;
+                box-shadow: 5px 5px 5px #555555;
+                border: 1px solid #555555;
+                padding: 0.5em;
+            }
+            .gasto-etiquetas-etiqueta {
+                display: inline-block;
+                background-color: #ccc;
+                border-radius: 5px;
+                padding: 2px 5px;
+                margin-right: 5px;
+                font-size: 0.9em;
+            }
+            button {
+                margin-top: 5px;
+                margin-right: 5px;
+                background-color: #333;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                cursor: pointer;
+            }
+            button:hover {
+                background-color: #555;
+            }
+        `;
+
+
         // se añade al shadow root del componente
-        this.shadowRoot.appendChild(contenido);
+        this.shadowRoot.appendChild(estilo, contenido);
     }
 
     // cuando se defina un gasto se guarda en el setter datos
@@ -164,14 +165,69 @@ class MiGasto extends HTMLElement {
             etiquetasDiv.appendChild(span);
         });
 
-    // obtenemos los botones d la template
-    const botonBorrar = this.shadowRoot.querySelector("#borrar");
-    const botonEditar = this.shadowRoot.querySelector("#editar");
-    const formEdicion = this.shadowRoot.querySelector("#form-edicion");
+        // obtenemos los botones d la template
+        const botonBorrar = this.shadowRoot.querySelector("#borrar");
+        const botonEditar = this.shadowRoot.querySelector("#editar");
+        const formEdicion = this.shadowRoot.querySelector("#form-edicion");
 
+        // botonBorrar: se llama a 'borrarGasto' pasando el id del gasto y se actualiza la vista
+        botonBorrar.onclick = () => {
+            borrarGasto(this._gasto.id);
+            actualizarListado();
+        };
 
+        // botonEditar: muestra el formulario d edicion
+        botonEditar.onclick = () => {
+            formEdicion.style.display = "block";
+            const desc = this.shadowRoot.querySelector("#nuevaDescripcion");
+            const val = this.shadowRoot.querySelector("#nuevoValor");
+            const fec = this.shadowRoot.querySelector("#nuevaFecha");
+            // rellena los campos con los valores actuales
+            desc.value = this._gasto.descripcion;
+            val.value = this._gasto.valor;
+            fec.value = this._gasto.fecha;
+        };
+
+        // evita la recarga cuando se envie el formulario de edicion
+        formEdicion.onsubmit = (event) => {
+            event.preventDefault();
+            // lee los nuevos valores q hemos editado
+            const desc = this.shadowRoot.querySelector("#nuevaDescripcion").value;
+            const val = parseFloat(
+                this.shadowRoot.querySelector("#nuevoValor").value
+            );
+            const fec = this.shadowRoot.querySelector("#nuevaFecha").value;
+            // se almacenan los nuevos valores
+            this._gasto.descripcion = desc;
+            this._gasto.valor = val;
+            this._gasto.fecha = fec;
+            // se oculta el form de edicion y se actualiza la vista
+            formEdicion.style.display = "none";
+            actualizarListado();
+        };
+
+        // el boton cancelar simplemente oculta el form de edicion
+        this.shadowRoot.querySelector("#cancelar").onclick = () => {
+            formEdicion.style.display = "none";
+        };
     }
 }
 
+customElements.define("mi-gasto", MiGasto);
+
+function actualizarListado() {
+    contenedorListado.innerHTML = "";
+    const gastos = listarGastos();
+
+    gastos.forEach((gasto) => {
+        const elemento = document.createElement("mi-gasto");
+        elemento.datos = gasto;
+        contenedorListado.appendChild(elemento);
+    });
+
+    const total = calcularTotalGastos();
+    pTotalGastos.textContent = total + " €";
+}
+
 crearFormularioGasto();
-actualizarInterfaz();
+actualizarListado();
