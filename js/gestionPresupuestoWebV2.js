@@ -11,6 +11,7 @@ import {
     agruparGastos
 } from './gestionPresupuesto.js';
 
+// declaro los contenedores q vamos a modificar
 const contenedorFormulario = document.getElementById("formularioGastos");
 const contenedorListado = document.getElementById("listadoGastos");
 const pTotalGastos = document.getElementById("total");
@@ -18,6 +19,9 @@ const pTotalGastos = document.getElementById("total");
 function crearFormularioGasto() {
     const form = document.createElement("form");
 
+    // ahora, para cada parametro, le declaro su contenedor,
+    // y dentro su label y su input. Esto lo hago por adaptarme
+    // al css que ya venía en el proyecto.
     const divDescripcion = document.createElement("div");
     divDescripcion.className = "form-control";
     const labelDescripcion = document.createElement("label");
@@ -97,6 +101,7 @@ function crearFormularioGasto() {
     });
 }
 
+// clase para crear el componente 'mi-gasto'
 class MiGasto extends HTMLElement {
     constructor() {
         super();
@@ -107,34 +112,162 @@ class MiGasto extends HTMLElement {
         const contenido = plantilla.content.cloneNode(true);
 
         // ya que el css q tenemos no afecta al componente, 
-        // copio los estilos q se necesiten para añadirlos al shadow
+        // copio los estilos para añadirlos al shadow
         const estilo = document.createElement("style");
         estilo.textContent = `
-            .gasto {
+            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+
+            * {
+                box-sizing: border-box;
+                font-family: 'Roboto', sans-serif;
+            }
+
+            #aplicacion {
+                margin: 1em;
+            }
+
+            form, .gasto {
                 margin: 1em 0;
                 box-shadow: 5px 5px 5px #555555;
                 border: 1px solid #555555;
                 padding: 0.5em;
             }
-            .gasto-etiquetas-etiqueta {
-                display: inline-block;
-                background-color: #ccc;
-                border-radius: 5px;
-                padding: 2px 5px;
-                margin-right: 5px;
-                font-size: 0.9em;
+
+            .form-control {
+                margin: 0.5em 0;
             }
+
+            .form-control label {
+                width: 100%;
+            }
+
+            .form-control input {
+                width: 100%;
+            }
+
             button {
-                margin-top: 5px;
-                margin-right: 5px;
-                background-color: #333;
-                color: white;
-                border: none;
-                padding: 5px 10px;
-                cursor: pointer;
+                border: 1px solid #555555;
+                padding: 0.5em 0.7em;
+                margin: 0.1em 0.1em;
+                color: #555555;
+                background-color: white;
+                box-shadow: 2px 2px #e6e6e6;
             }
+
             button:hover {
-                background-color: #555;
+                border: 1px solid #888888;
+                color: #888888;
+            }
+
+            button:active:enabled {
+                box-shadow: none;
+                transform: translateY(2px);
+            }
+
+            button[type=submit], button.gasto-editar-formulario {
+                background-color: #555555;
+                color: white;
+            }
+
+            button[type=submit]:hover, button.gasto-editar-formulario:hover {
+                background-color: #888888;
+                color: white;
+            }
+
+            button:disabled, button:disabled:hover {
+                cursor: not-allowed;
+                border-color: #999999;
+                background-color: #999999;
+                box-shadow: none;
+            }
+
+            .gasto-etiquetas-etiqueta {
+                font-size: 0.8em;
+                font-variant: small-caps;
+                margin: 0.2em;
+                display: inline-block;
+                border: 1px solid #555555;
+                padding: 0.2em 0.5em;
+                border-radius: 5px;
+                cursor: pointer;
+                position: relative;
+            }
+
+            .gasto-etiquetas-etiqueta:hover {
+                color: red;
+                border: 1px solid red;
+                text-decoration: line-through;
+
+            }
+
+            .gasto-valor:after {
+                content: "€";
+            }
+
+            /* Formulario filtrado */
+            #formulario-filtrado {
+                display: flex;
+                flex-wrap: wrap;
+            }
+
+            #formulario-filtrado .form-control {
+                flex: 1 1 auto;
+                margin: 0.2em 1em;
+            }
+
+            #formulario-filtrado #formulario-filtrado-error {
+                flex: 1 1 100%;
+                color: red;
+            }
+
+
+            /* Pantallas grandes */
+            @media screen and (min-width: 600px) {
+                .form-control {
+                    display: flex;
+                }
+
+                .form-control label {
+                    flex: 0 0 8em;
+                }
+
+                .form-control input {
+                    flex: 1;
+                }
+
+                .gasto {
+                    display: flex;
+                    align-items: center;
+                    flex-wrap: wrap;
+                }
+
+                .gasto > div {
+                    padding: 0.5em 0.7em;
+                }
+
+                .gasto .gasto-descripcion {
+                    flex: 0 0 30%;
+                }
+
+                .gasto .gasto-fecha {
+                    flex: 0 0 20%;
+                }
+
+                .gasto .gasto-valor {
+                    flex: 0 0 15%;
+                }
+
+                .gasto .gasto-etiquetas {
+                    flex: 0 0 15%;
+                }
+
+                .gasto button {
+                    flex: 0 0 9%;
+                }
+
+                .gasto form {
+                    flex: 1;
+                }
             }
         `;
 
@@ -149,10 +282,22 @@ class MiGasto extends HTMLElement {
     }
 
     render() {
-        // se busca dentro del SDom los elementos para ponerles como texto su propiedad correspondiente
+        // se busca dentro del SDom los elementos para asignarles su valor correspondiente
         this.shadowRoot.querySelector(".gasto-descripcion").textContent = this._gasto.descripcion;
         this.shadowRoot.querySelector(".gasto-valor").textContent = this._gasto.valor;
-        this.shadowRoot.querySelector(".gasto-fecha").textContent = this._gasto.fecha;
+        /*this.shadowRoot.querySelector(".gasto-fecha").textContent = this._gasto.fecha;*/
+
+        // si no pongo fecha, me pone el tiempo en ms. Para solucionar eso he hecho q,
+        // si no se pone fecha, almacene la fecha de hoy, y si hay fecha, simplemente se formatea.
+        const fechaElemento = this.shadowRoot.querySelector(".gasto-fecha");
+        if (!this._gasto.fecha) {
+            const fechaHoy = new Date();
+            fechaElemento.textContent = fechaHoy.toLocaleDateString();
+        } else {
+            const fecha = new Date(this._gasto.fecha);
+            fechaElemento.textContent = fecha.toLocaleDateString();
+        }
+
         // se limpian las etiquetas (pa que no se repitan) 
         const etiquetasDiv = this.shadowRoot.querySelector(".gasto-etiquetas");
         etiquetasDiv.innerHTML = "";
@@ -167,9 +312,9 @@ class MiGasto extends HTMLElement {
         // obtenemos los botones d la template
         const botonBorrar = this.shadowRoot.querySelector("#borrar");
         const botonEditar = this.shadowRoot.querySelector("#editar");
-        const formEdicion = this.shadowRoot.querySelector("#form-edicion");
+        const formEdicion = this.shadowRoot.querySelector("#formulario-filtrado");
 
-        // botonBorrar: se llama a 'borrarGasto' pasando el id del gasto y se actualiza la vista
+        // botonBorrar: se borra un gasto pasando el id del gasto y se actualiza la vista
         botonBorrar.onclick = () => {
             borrarGasto(this._gasto.id);
             actualizarListado();
@@ -212,14 +357,15 @@ class MiGasto extends HTMLElement {
     }
 }
 
+// registra el nuevo componente 'mi-gasto' para q use su clase MiGasto
 customElements.define("mi-gasto", MiGasto);
 
-// funcion q limpia el contenedor de los gastos
 function actualizarListado() {
+    // limpia el contenedor de los gastos y muestra los gastos actuales
     contenedorListado.innerHTML = "";
     const gastos = listarGastos();
 
-    // para cada gasto se crea un componente 'mi-gasto'
+    // para cada gasto se crea y añade un componente 'mi-gasto'
     gastos.forEach((gasto) => {
         const elemento = document.createElement("mi-gasto");
         elemento.datos = gasto;
