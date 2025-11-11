@@ -381,30 +381,42 @@ crearFormularioGasto();
 actualizarListado();
 
 // CÓDIGO DE LA VERSIÓN 3
-const GASTOS_ALMACENADOS = "gastosApp";
+// defino la clave en la q guardaré los datos
+const GASTOS_ALMACENADOS = "gastos";
 
+// funcion para guardar los gastos en el localStorage
 function guardarEnLocalStorage() {
+    // listamos todos los gastos y los guardamos en 
+    // nuestra clave en formato JSON.
     const gastos = listarGastos();
     const datosJSON = JSON.stringify(gastos);
     localStorage.setItem(GASTOS_ALMACENADOS, datosJSON);
+    alert("Has guardado los gastos correctamente.");
 }
 
+// funcion para recuperar los gastos del localStorage
 function recuperarDeLocalStorage() {
+    // recuperamos el JSON y lo convertimos en objetos simples
     const datosJSON = localStorage.getItem(GASTOS_ALMACENADOS);
     const datosParseados = JSON.parse(datosJSON);
+    // reconstruimos los objetos Gasto
     const gastosRecuperados = datosParseados.map(gasto =>
         new CrearGasto(gasto.descripcion, gasto.valor, gasto.fecha, ...gasto.etiquetas)
     );
+    // sustituyo los gastos actuales por los q habiamos guardado
     sobreescribirGastos(gastosRecuperados);
     actualizarListado();
+    alert("Has recuperado los gastos correctamente.");
 }
 
+// funcion q elimina los gastos actuales y añade los nuevos
 function sobreescribirGastos(nuevosGastos) {
     const gastosActuales = listarGastos();
     gastosActuales.forEach(gasto => borrarGasto(gasto.id));
     nuevosGastos.forEach(gasto => anyadirGasto(gasto));
 }
 
+// aquí ya proporciono a cada boton su función correspondiente
 const botonGuardarGastos = document.getElementById("guardar");
 const botonRecuperarGastos = document.getElementById("recuperar");
 
