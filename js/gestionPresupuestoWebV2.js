@@ -395,5 +395,12 @@ function recuperarDeLocalStorage() {
     const gastosRecuperados = datosParseados.map(gasto =>
         new CrearGasto(gasto.descripcion, gasto.valor, gasto.fecha, ...gasto.etiquetas)
     );
+    sobreescribirGastos(gastosRecuperados);
     actualizarListado();
+}
+
+function sobreescribirGastos(nuevosGastos) {
+    const gastosActuales = listarGastos();
+    gastosActuales.forEach(gasto => borrarGasto(gasto.id));
+    nuevosGastos.forEach(gasto => anyadirGasto(gasto));
 }
