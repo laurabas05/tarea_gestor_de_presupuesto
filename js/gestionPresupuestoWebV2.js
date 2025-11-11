@@ -388,3 +388,12 @@ function guardarEnLocalStorage() {
     const datosJSON = JSON.stringify(gastos);
     localStorage.setItem(GASTOS_ALMACENADOS, datosJSON);
 }
+
+function recuperarDeLocalStorage() {
+    const datosJSON = localStorage.getItem(GASTOS_ALMACENADOS);
+    const datosParseados = JSON.parse(datosJSON);
+    const gastosRecuperados = datosParseados.map(gasto =>
+        new CrearGasto(gasto.descripcion, gasto.valor, gasto.fecha, ...gasto.etiquetas)
+    );
+    actualizarListado();
+}
