@@ -404,3 +404,9 @@ function sobreescribirGastos(nuevosGastos) {
     gastosActuales.forEach(gasto => borrarGasto(gasto.id));
     nuevosGastos.forEach(gasto => anyadirGasto(gasto));
 }
+
+const botonGuardarGastos = document.getElementById("guardar");
+const botonRecuperarGastos = document.getElementById("recuperar");
+
+botonGuardarGastos.addEventListener("click", guardarEnLocalStorage);
+botonRecuperarGastos.addEventListener("click", recuperarDeLocalStorage);
