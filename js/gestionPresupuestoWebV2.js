@@ -379,3 +379,12 @@ function actualizarListado() {
 
 crearFormularioGasto();
 actualizarListado();
+
+// CÓDIGO DE LA VERSIÓN 3
+const GASTOS_ALMACENADOS = "gastosApp";
+
+function guardarEnLocalStorage() {
+    const gastos = listarGastos();
+    const datosJSON = JSON.stringify(gastos);
+    localStorage.setItem(GASTOS_ALMACENADOS, datosJSON);
+}
